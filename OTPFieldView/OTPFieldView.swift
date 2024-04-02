@@ -74,7 +74,9 @@ import UIKit
     public var defaultBorderColor: UIColor = UIColor.gray
     public var filledBorderColor: UIColor = UIColor.clear
     public var errorBorderColor: UIColor?
-    
+    public var isRTL: Bool {
+        return self.semanticContentAttribute == .forceRightToLeft
+    }
     public weak var delegate: OTPFieldViewDelegate?
     
     fileprivate var secureEntryData = [String]()
@@ -99,9 +101,13 @@ import UIKit
         secureEntryData.removeAll()
         
         for index in stride(from: 0, to: fieldsCount, by: 1) {
-            let oldOtpField = viewWithTag(index + 1) as? OTPTextField
-            oldOtpField?.removeFromSuperview()
-            
+            if isRTL {
+                let oldOtpField = viewWithTag(fieldsCount-index) as? OTPTextField
+                oldOtpField?.removeFromSuperview()
+            } else {
+                let oldOtpField = viewWithTag(index + 1) as? OTPTextField
+                oldOtpField?.removeFromSuperview()
+            }
             let otpField = getOTPField(forIndex: index)
             addSubview(otpField)
             
@@ -126,7 +132,7 @@ import UIKit
         
         let otpField = OTPTextField(frame: fieldFrame)
         otpField.delegate = self
-        otpField.tag = index + 1
+        otpField.tag = isRTL ? (fieldsCount-index) : index + 1
         otpField.font = fieldFont
         
         // Set input type for OTP fields
